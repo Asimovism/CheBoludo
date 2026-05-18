@@ -1,13 +1,12 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import App from "./App"
+import Admin from "./pages/Admin"
 
-import App from "./App";
+const isAdmin = window.location.pathname.startsWith('/admin')
 
-const rootElement = document.getElementById("root");
-const root = createRoot(rootElement);
-
-root.render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
+    {isAdmin ? <Admin /> : <App />}
   </StrictMode>
-);
+)

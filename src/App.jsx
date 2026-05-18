@@ -1,6 +1,8 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import "./styles.css";
-import { vocabulary, multipleChoiceQuestions, shuffleArray } from "./data";
+import { vocabulary, shuffleArray } from "./data";
+import { supabase } from "./lib/supabase";
+import { calculateSM2 } from "./lib/sm2";
 
 const TOTAL_QUESTIONS = 10;
 const GAME_OVER_MESSAGES = [
@@ -10,6 +12,55 @@ const GAME_OVER_MESSAGES = [
   "Estás al horno, pibe!",
   "Dale, intentá de nuevo!",
 ];
+
+// ─── Normalize a vocabulary word to include SM-2 fields ───────────────────
+function normalizeWord(word, index) {
+  return {
+    id: word.id ?? `local-${index}`,
+    spanish: word.spanish,
+    english: word.english,
+    context: word.context ?? "",
+    category: word.category,
+    times_seen: word.times_seen ?? 0,
+    times_correct: word.times_correct ?? 0,
+    ease_factor: word.ease_factor ?? 2.5,
+    interval_days: word.interval_days ?? 1,
+    repetitions: word.repetitions ?? 0,
+    next_review: word.next_review ?? null,
+    last_seen: word.last_seen ?? null,
+  };
+}
+
+// ─── Build session word list using SM-2 priority ──────────────────────────
+function buildSessionWords(words, adultMode) {
+  const now = new Date();
+  const pool = adultMode ? words : words.filter((w) => w.category !== "vulgar");
+  const due = pool.filter((w) => w.next_review && new Date(w.next_review) <= now);
+  const newWords = pool.filter((w) => !w.times_seen || w.times_seen === 0);
+  const notDue = pool.filter(
+    (w) => w.times_seen > 0 && (!w.next_review || new Date(w.next_review) > now)
+  );
+  const prioritized = [
+    ...shuffleArray(due),
+    ...shuffleArray(newWords),
+    ...shuffleArray(notDue),
+  ];
+  return prioritized.slice(0, TOTAL_QUESTIONS);
+}
+
+// ─── Generate a multiple choice question from a word ──────────────────────
+function generateMCQuestion(word, allWords) {
+  const distractorPool = shuffleArray(allWords.filter((w) => w.id !== word.id));
+  const distractors = distractorPool.slice(0, 3).map((w) => w.english);
+  return {
+    id: word.id,
+    question: `What does "${word.spanish}" mean?`,
+    correct: word.english,
+    options: distractors,
+    explanation: word.context || "",
+    word,
+  };
+}
 
 // ─── Stats Bar ────────────────────────────────────────────────────────────────
 function StatsBar({ empanadas, streak, adultMode, onToggleAdult }) {
@@ -96,34 +147,32 @@ function Menu({ onSelect }) {
 
 // ─── Flashcards ───────────────────────────────────────────────────────────────
 function Flashcards({
+  sessionWords,
   empanadas,
   learned,
-  adultMode,
   onCorrect,
   onWrong,
   onGameOver,
   onComplete,
   onMenu,
+  onAnswer,
 }) {
-  const sessionVocab = useMemo(() => {
-    const pool = adultMode
-      ? vocabulary
-      : vocabulary.filter((w) => w.category !== "vulgar");
-    return shuffleArray([...pool]).slice(0, TOTAL_QUESTIONS);
-  }, []);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [displayIndex, setDisplayIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const correctRef = useRef(0);
 
-  const card = sessionVocab[displayIndex];
+  const card = sessionWords[displayIndex];
 
   function advance(isCorrect) {
     const nextIndex = index + 1;
+    const quality = isCorrect ? 5 : 1;
+    onAnswer(sessionWords[index].id, quality);
+
     if (isCorrect) {
       correctRef.current += 1;
-      onCorrect(sessionVocab[index].spanish);
+      onCorrect(sessionWords[index].spanish);
     } else {
       const newEmpanadas = empanadas - 1;
       onWrong();
@@ -132,7 +181,7 @@ function Flashcards({
         return;
       }
     }
-    if (nextIndex >= sessionVocab.length) {
+    if (nextIndex >= sessionWords.length) {
       onComplete({
         correct: correctRef.current,
         learnedCount: learned.size + (isCorrect ? 1 : 0),
@@ -142,23 +191,15 @@ function Flashcards({
     setIndex(nextIndex);
     setFlipped(false);
     setTransitioning(true);
-    // Wait for flip-back animation to finish before showing new card text
     setTimeout(() => {
       setDisplayIndex(nextIndex);
       setTransitioning(false);
     }, 650);
   }
 
-  function handleKnown() {
-    advance(true);
-  }
-  function handleUnknown() {
-    advance(false);
-  }
-
   return (
     <div>
-      <ProgressBar current={index} total={sessionVocab.length} />
+      <ProgressBar current={index} total={sessionWords.length} />
 
       <div
         className="flashcard-container"
@@ -190,10 +231,10 @@ function Flashcards({
         </div>
       </div>
       <div className="btn-group">
-        <button className="pixel-btn" onClick={handleKnown}>
+        <button className="pixel-btn" onClick={() => advance(true)}>
           Knew it!
         </button>
-        <button className="pixel-btn secondary" onClick={handleUnknown}>
+        <button className="pixel-btn secondary" onClick={() => advance(false)}>
           No idea
         </button>
       </div>
@@ -208,17 +249,21 @@ function Flashcards({
 
 // ─── Multiple Choice ──────────────────────────────────────────────────────────
 function MultipleChoice({
+  sessionWords,
   empanadas,
   learned,
+  adultMode,
   onCorrect,
   onWrong,
   onGameOver,
   onComplete,
   onMenu,
+  onAnswer,
+  allWords,
 }) {
   const sessionQ = useMemo(
-    () => shuffleArray([...multipleChoiceQuestions]).slice(0, TOTAL_QUESTIONS),
-    []
+    () => sessionWords.map((w) => generateMCQuestion(w, allWords)),
+    [sessionWords, allWords]
   );
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(null);
@@ -237,6 +282,9 @@ function MultipleChoice({
     if (answered || waitingGameOver) return;
     const isCorrect = option.toLowerCase() === q.correct.toLowerCase();
     setAnswered({ selected: option, isCorrect });
+
+    const quality = isCorrect ? 4 : 1;
+    onAnswer(q.id, quality);
 
     if (isCorrect) {
       correctRef.current += 1;
@@ -335,13 +383,13 @@ function MultipleChoice({
 }
 
 // ─── Glossary ─────────────────────────────────────────────────────────────────
-function Glossary({ onMenu }) {
+function Glossary({ words, onMenu }) {
   const [hideMode, setHideMode] = useState(null);
   const [revealed, setReveal] = useState(new Set());
 
   const sorted = useMemo(
-    () => [...vocabulary].sort((a, b) => a.spanish.localeCompare(b.spanish)),
-    []
+    () => [...words].sort((a, b) => a.spanish.localeCompare(b.spanish)),
+    [words]
   );
 
   function toggleHide(mode) {
@@ -511,6 +559,71 @@ export default function App() {
   const [empanadas, setEmpanadas] = useState(3);
   const [streak, setStreak] = useState(0);
   const [learned, setLearned] = useState(new Set());
+  const [words, setWords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sessionWords, setSessionWords] = useState([]);
+
+  // ─── Load words on mount ────────────────────────────────────────────────
+  useEffect(() => {
+    async function loadWords() {
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from("Che_words")
+            .select("*");
+          if (!error && data && data.length > 0) {
+            setWords(data.map((w, i) => normalizeWord(w, i)));
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          // fall through to local data
+        }
+      }
+      // Fallback to local vocabulary
+      setWords(vocabulary.map((w, i) => normalizeWord(w, i)));
+      setLoading(false);
+    }
+    loadWords();
+  }, []);
+
+  // ─── onAnswer: SM-2 + Supabase update (fire and forget) ────────────────
+  function onAnswer(wordId, quality) {
+    setWords((prev) => {
+      const idx = prev.findIndex((w) => w.id === wordId);
+      if (idx === -1) return prev;
+      const word = prev[idx];
+      const sm2 = calculateSM2(word, quality);
+      const updated = {
+        ...word,
+        ...sm2,
+        times_seen: (word.times_seen ?? 0) + 1,
+        times_correct: (word.times_correct ?? 0) + (quality >= 3 ? 1 : 0),
+        last_seen: new Date().toISOString(),
+      };
+      const next = [...prev];
+      next[idx] = updated;
+
+      // Persist to Supabase asynchronously (fire and forget)
+      if (supabase && !String(wordId).startsWith("local-")) {
+        supabase
+          .from("Che_words")
+          .update({
+            ease_factor: updated.ease_factor,
+            interval_days: updated.interval_days,
+            repetitions: updated.repetitions,
+            next_review: updated.next_review,
+            times_seen: updated.times_seen,
+            times_correct: updated.times_correct,
+            last_seen: updated.last_seen,
+          })
+          .eq("id", wordId)
+          .then(() => {});
+      }
+
+      return next;
+    });
+  }
 
   function toggleMusic() {
     if (isPlaying) {
@@ -540,6 +653,9 @@ export default function App() {
     setLastMode(mode);
     setEmpanadas(3);
     setStreak(0);
+    // Build session words once at mode start
+    const sw = buildSessionWords(words, adultMode);
+    setSessionWords(sw);
     setScreen(mode);
   }
 
@@ -557,11 +673,26 @@ export default function App() {
     setScreen("menu");
   }
 
+  if (loading) {
+    return (
+      <div className="container">
+        <div className="game-window">
+          <div className="loading-screen">
+            <div className="loading-text">Cargando...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const gameProps = {
+    sessionWords,
+    allWords: words,
     empanadas,
     streak,
     learned,
     adultMode,
+    onAnswer,
     onCorrect: handleCorrect,
     onWrong: handleWrong,
     onGameOver: handleGameOver,
@@ -607,7 +738,7 @@ export default function App() {
           {screen === "multiplechoice" && (
             <MultipleChoice key="mc" {...gameProps} />
           )}
-          {screen === "glossary" && <Glossary onMenu={handleMenu} />}
+          {screen === "glossary" && <Glossary words={words} onMenu={handleMenu} />}
           {screen === "premium" && <PremiumScreen onMenu={handleMenu} />}
           {screen === "gameover" && (
             <GameOver
