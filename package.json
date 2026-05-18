@@ -4,12 +4,14 @@
   "description": "",
   "private": true,
   "dependencies": {
+    "@supabase/supabase-js": "^2.47.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vite-plugin-pwa": "^0.21.0"
   },
   "scripts": {
     "start": "vite",
