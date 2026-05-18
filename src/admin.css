@@ -1,0 +1,524 @@
+@import url("https://fonts.googleapis.com/css2?family=Milonga&family=Rubik:ital,wght@0,400;0,500;0,700;1,400&display=swap");
+
+/* ── Palette (same as main app) ─────────────────────────────────────────── */
+:root {
+  --bg-deep: #050d1a;
+  --bg-dark: #091528;
+  --bg-panel: #0a1930;
+  --bg-card: #0e2040;
+
+  --gold: #d4a017;
+  --gold-light: #f0c840;
+  --gold-dark: #8a6500;
+
+  --blue: #1a4a9a;
+  --blue-bright: #2e6fd4;
+  --blue-light: #6aaeff;
+  --blue-pale: #c8deff;
+
+  --white: #f8f4ee;
+  --cream: #e8e0d0;
+  --cream-dark: #a8a090;
+
+  --green: #4aaa45;
+  --red: #e8350f;
+}
+
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Rubik", Georgia, serif;
+  background: var(--bg-deep);
+  color: var(--cream);
+  min-height: 100vh;
+}
+
+/* ── Admin wrapper ───────────────────────────────────────────────────────── */
+.admin-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ── Login page ──────────────────────────────────────────────────────────── */
+.admin-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.admin-login-box {
+  background: var(--bg-panel);
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 0 6px var(--blue), 0 0 50px rgba(212, 160, 23, 0.2);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.admin-login-title {
+  font-family: "Milonga", serif;
+  font-size: 28px;
+  color: var(--gold-light);
+  text-shadow: 2px 2px 0 var(--blue), 0 0 20px rgba(240, 200, 64, 0.4);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.admin-login-subtitle {
+  font-family: "Rubik", sans-serif;
+  font-size: 13px;
+  color: var(--blue-light);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 36px;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-form label {
+  font-family: "Milonga", serif;
+  font-size: 14px;
+  color: var(--blue-light);
+  letter-spacing: 1px;
+  display: block;
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.admin-input {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 2px solid var(--gold-dark);
+  color: var(--cream);
+  font-family: "Rubik", sans-serif;
+  font-size: 16px;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(212, 160, 23, 0.2);
+}
+
+.admin-btn {
+  background: linear-gradient(160deg, #0a2050 0%, var(--bg-card) 100%);
+  border: 2px solid var(--gold-dark);
+  color: var(--cream);
+  font-family: "Milonga", serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  padding: 13px 22px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 0 #000;
+  width: 100%;
+}
+
+.admin-btn:hover {
+  background: linear-gradient(160deg, var(--blue) 0%, #1a3a80 100%);
+  border-color: var(--gold);
+  color: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #000;
+}
+
+.admin-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.admin-btn.secondary {
+  border-color: var(--blue-light);
+  background: linear-gradient(160deg, #091528 0%, #0e2040 100%);
+  font-size: 14px;
+  padding: 8px 16px;
+  width: auto;
+}
+
+.admin-btn.secondary:hover {
+  background: linear-gradient(160deg, var(--blue-bright) 0%, var(--blue) 100%);
+  border-color: var(--blue-light);
+  color: var(--white);
+}
+
+.admin-btn.danger {
+  border-color: var(--red);
+  background: linear-gradient(160deg, #3d0a0a 0%, #5a1010 100%);
+  font-size: 14px;
+  padding: 6px 12px;
+  width: auto;
+}
+
+.admin-btn.danger:hover {
+  background: linear-gradient(160deg, #6a1010 0%, #8a1515 100%);
+  border-color: #ff5030;
+  color: var(--white);
+}
+
+.admin-btn.success {
+  border-color: var(--green);
+  background: linear-gradient(160deg, #0d3d0c 0%, #1a5518 100%);
+  font-size: 14px;
+  padding: 6px 12px;
+  width: auto;
+}
+
+.admin-btn.success:hover {
+  background: linear-gradient(160deg, #1a5518 0%, #2a6a28 100%);
+  border-color: #7acc75;
+  color: var(--white);
+}
+
+.admin-error {
+  background: rgba(232, 53, 15, 0.15);
+  border: 1px solid var(--red);
+  color: #ff8070;
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  margin-top: 8px;
+  text-align: left;
+}
+
+.admin-success-msg {
+  background: rgba(74, 170, 69, 0.15);
+  border: 1px solid var(--green);
+  color: #7acc75;
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  padding: 10px 14px;
+  margin-top: 8px;
+  text-align: left;
+}
+
+/* ── Dashboard header ────────────────────────────────────────────────────── */
+.admin-header {
+  background: linear-gradient(180deg, #0a2050 0%, var(--bg-panel) 100%);
+  border-bottom: 3px solid var(--gold);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.admin-header-title {
+  font-family: "Milonga", serif;
+  font-size: 24px;
+  color: var(--gold-light);
+  text-shadow: 2px 2px 0 var(--blue), 0 0 16px rgba(240, 200, 64, 0.4);
+  letter-spacing: 2px;
+}
+
+/* ── Stats row ───────────────────────────────────────────────────────────── */
+.admin-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.admin-stat-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--gold-dark);
+  padding: 16px 24px;
+  text-align: center;
+  min-width: 140px;
+}
+
+.admin-stat-label {
+  font-family: "Milonga", serif;
+  font-size: 13px;
+  color: var(--blue-light);
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.admin-stat-value {
+  font-family: "Rubik", sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold-light);
+  text-shadow: 0 0 12px rgba(240, 200, 64, 0.4);
+}
+
+/* ── Action buttons row ──────────────────────────────────────────────────── */
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: center;
+}
+
+/* ── Search and filter row ───────────────────────────────────────────────── */
+.admin-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.admin-search {
+  background: var(--bg-dark);
+  border: 2px solid var(--gold-dark);
+  color: var(--cream);
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  padding: 8px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  flex: 1;
+  min-width: 180px;
+}
+
+.admin-search:focus {
+  border-color: var(--gold);
+}
+
+.admin-select {
+  background: var(--bg-dark);
+  border: 2px solid var(--gold-dark);
+  color: var(--cream);
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  padding: 8px 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.admin-select:focus {
+  border-color: var(--gold);
+}
+
+/* ── Add word form ───────────────────────────────────────────────────────── */
+.admin-add-form {
+  background: var(--bg-panel);
+  border: 2px solid var(--blue);
+  border-left: 5px solid var(--blue-bright);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.admin-add-form-title {
+  font-family: "Milonga", serif;
+  font-size: 18px;
+  color: var(--blue-light);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 600px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.admin-form-field label {
+  font-family: "Milonga", serif;
+  font-size: 12px;
+  color: var(--blue-light);
+  letter-spacing: 1px;
+}
+
+.admin-form-field input,
+.admin-form-field select,
+.admin-form-field textarea {
+  background: var(--bg-deep);
+  border: 1px solid var(--gold-dark);
+  color: var(--cream);
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-form-field input:focus,
+.admin-form-field select:focus,
+.admin-form-field textarea:focus {
+  border-color: var(--gold);
+}
+
+.admin-form-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Import preview ──────────────────────────────────────────────────────── */
+.admin-import-preview {
+  background: var(--bg-panel);
+  border: 2px solid var(--blue);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.admin-import-preview p {
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 2px solid var(--gold-dark);
+}
+
+table.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Rubik", sans-serif;
+  font-size: 13px;
+}
+
+.admin-table thead {
+  background: linear-gradient(90deg, #091528 0%, var(--bg-card) 100%);
+  border-bottom: 2px solid var(--gold-dark);
+}
+
+.admin-table th {
+  font-family: "Milonga", serif;
+  font-size: 12px;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid rgba(26, 74, 154, 0.3);
+  transition: background 0.15s;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(26, 74, 154, 0.1);
+}
+
+.admin-table td {
+  padding: 10px 12px;
+  color: var(--cream);
+  vertical-align: middle;
+}
+
+.admin-table td.spanish-cell {
+  font-family: "Milonga", serif;
+  color: var(--gold-light);
+}
+
+.admin-table td.english-cell {
+  font-style: italic;
+  color: var(--blue-light);
+}
+
+.admin-table td.context-cell {
+  color: var(--cream-dark);
+  max-width: 220px;
+}
+
+.admin-table td.category-cell {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--blue-light);
+}
+
+.admin-table td.actions-cell {
+  white-space: nowrap;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.admin-table td input,
+.admin-table td select {
+  background: var(--bg-deep);
+  border: 1px solid var(--gold-dark);
+  color: var(--cream);
+  font-family: "Rubik", sans-serif;
+  font-size: 13px;
+  padding: 4px 8px;
+  outline: none;
+  width: 100%;
+}
+
+.admin-table td input:focus,
+.admin-table td select:focus {
+  border-color: var(--gold);
+}
+
+/* ── Loading state ───────────────────────────────────────────────────────── */
+.admin-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: "Milonga", serif;
+  font-size: 24px;
+  color: var(--gold-light);
+  text-shadow: 2px 2px 0 var(--blue), 0 0 20px rgba(240, 200, 64, 0.4);
+  letter-spacing: 2px;
+}
+
+/* ── No Supabase banner ──────────────────────────────────────────────────── */
+.admin-no-supabase {
+  background: rgba(232, 53, 15, 0.1);
+  border: 2px solid var(--red);
+  color: #ff8070;
+  font-family: "Rubik", sans-serif;
+  font-size: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  line-height: 1.7;
+}
+
+.admin-no-supabase strong {
+  font-family: "Milonga", serif;
+  color: var(--red);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+}
